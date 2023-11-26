@@ -1,4 +1,6 @@
 target/
 .idea/
 .mvn/
+.env
+.attach*
 mvnw*
