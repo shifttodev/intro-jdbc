@@ -1,4 +1,4 @@
-package shifttodev.introjdbc;
+package shifttodev.introjdbc.test;
 
 import com.github.javafaker.*;
 import shifttodev.introjdbc.dao.ConnectionFactory;
@@ -7,11 +7,12 @@ import shifttodev.introjdbc.model.Livro;
 import java.sql.*;
 
 
-public class Main {
+public class OperacoesTest {
     public static void main(String[] args) {
-
-//        insert();
-//        delete();
+        read();
+        insert();
+        read();
+        delete();
         read();
         update();
         read();
@@ -22,12 +23,13 @@ public class Main {
             Connection conn = ConnectionFactory.getConnection();
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery(
-                    "SELECT titulo, isbn FROM livros");
+                    "SELECT titulo, isbn, ano FROM livros");
 
         ) {
             while(rs.next()) {
-                System.out.printf("%-30s %s\n",
-                        rs.getString("titulo"), rs.getString("isbn"));
+                System.out.printf("%-30s %13s %d \n",
+                        rs.getString("titulo"), rs.getString("isbn"),
+                        rs.getInt("ano"));
             }
         } catch(SQLException e){
             throw new RuntimeException(e);
@@ -52,7 +54,7 @@ public class Main {
             if (row > 0){
                 System.out.printf("Livro %s inserido com sucesso!\n", livro);
             } else {
-                System.out.println("Falha ao inserir o registro.");
+                System.out.println("Nenhum registro inserido.");
             }
 
             ps.clearParameters();
@@ -63,23 +65,25 @@ public class Main {
     }
 
     static void delete(){
-        String isbnToDel = "9781886701939";
+        Integer ano = new Faker().number().numberBetween(2000, 2023);
 
         try(
             Connection conn = ConnectionFactory.getConnection();
             PreparedStatement ps = conn.prepareStatement(
-                    "DELETE FROM livros WHERE isbn = ?"
+                    "DELETE FROM livros WHERE ano = ?"
             );
         ){
-            ps.setString(1, isbnToDel);
+            ps.setInt(1, ano);
             int row = ps.executeUpdate();
 
             if (row > 0){
-                System.out.printf("Registro  %s removido com sucesso.\n", isbnToDel);
+                System.out.printf(
+                        "Registros do ano de %d removidos com sucesso.\n",
+                        ano);
                 return;
             }
 
-            System.out.println("Falha ao remover o registro.");
+            System.out.printf("Nenhum registro de %d removido.\n", ano);
 
         } catch (SQLException e){
             throw new RuntimeException(e);
@@ -88,7 +92,7 @@ public class Main {
 
     static void update(){
         Livro livro = getNewBook();
-        String isbn = "9790060776267";
+        Integer ano = new Faker().number().numberBetween(2000, 2023);
 
         try(
             Connection conn = ConnectionFactory.getConnection();
@@ -97,19 +101,20 @@ public class Main {
                             "titulo = ?, " +
                             "edicao = ?, " +
                             "ano = ? " +
-                            "WHERE isbn = ?")
+                            "WHERE ano = ?")
         ) {
             ps.setString(1, livro.getTitulo());
             ps.setInt(2, livro.getEdicao());
             ps.setInt(3, livro.getAno());
-            ps.setString(4, isbn);
+            ps.setInt(4, ano);
 
             int row = ps.executeUpdate();
             if (row > 0) {
-                System.out.printf("Registro %s atualizado com sucesso.\n",
-                        isbn);
+                System.out.printf(
+                        "Registros do ano de %d atualizados com sucesso.\n",
+                        ano);
             } else {
-                System.out.println("Falha ao atualizar o registro.");
+                System.out.printf("Nenhum registro de %d atualizado.\n", ano);
             }
 
             ps.clearParameters();
