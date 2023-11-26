@@ -18,8 +18,8 @@ public class InserirServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String titulo = req.getParameter("titulo");
         String isbn = req.getParameter("isbn");
-        Integer edicao = Integer.valueOf(req.getParameter("edicao"));
-        Integer ano = Integer.valueOf(req.getParameter("ano"));
+        int edicao = Integer.parseInt(req.getParameter("edicao"));
+        int ano = Integer.parseInt(req.getParameter("ano"));
 
         String sql = "INSERT INTO livros (titulo, isbn, edicao, ano) VALUES (?,?,?,?)";
 

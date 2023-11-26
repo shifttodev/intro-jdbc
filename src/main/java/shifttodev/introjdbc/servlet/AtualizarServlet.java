@@ -16,18 +16,22 @@ import java.sql.SQLException;
 public class AtualizarServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
         String titulo = req.getParameter("titulo");
         String isbn = req.getParameter("isbn");
-        Integer edicao = Integer.valueOf(req.getParameter("edicao"));
-        Integer ano = Integer.valueOf(req.getParameter("ano"));
+        int edicao = Integer.parseInt(req.getParameter("edicao"));
+        int ano = Integer.parseInt(req.getParameter("ano"));
 
-        Connection conn = ConnectionFactory.getConnection();
-        PreparedStatement ps = null;
-
-        try {
-            String sql = "UPDATE livros SET titulo = ?, edicao = ?, ano = ? WHERE isbn = ?";
-            ps = conn.prepareStatement(sql);
+        try(
+            Connection conn = ConnectionFactory.getConnection();
+            PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE livros SET " +
+                        "titulo = ?, " +
+                        "edicao = ?, " +
+                        "ano = ? " +
+                            "WHERE isbn = ?");
+        ) {
             ps.setString(1, titulo);
             ps.setInt(2, edicao);
             ps.setInt(3, ano);
@@ -36,12 +40,6 @@ public class AtualizarServlet extends HttpServlet {
             ps.clearParameters();
         }catch (SQLException e){
             throw new RuntimeException(e);
-        } finally {
-            try {
-                ps.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         resp.sendRedirect("listar.jsp");
